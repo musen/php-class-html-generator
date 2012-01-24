@@ -1,24 +1,24 @@
 <?php
 class HtmlTag{
-	
+
 	private static $_instance = null;
-	
+
 	private $_top = null;
 	private $_parent = null;
-	
+
 	private $tag = null;
 	private $attributeList = null;
 	private $classList = null;
-	
+
 	private $content = null;
 	private $text = '';
-	
+
 	private $autoclosed = false;
-	
+
 	private $autocloseTagsList = array(
 		'img','br','hr','input','area','link','meta','param'
 	);
-	
+
 	private function __construct($tag, $top = null){
 		$this->tag = $tag;
 		$this->_top =& $top;
@@ -28,12 +28,12 @@ class HtmlTag{
 		$this->text = '';
 		return $this;
 	}
-	
+
 	public static function createElement($tag = ''){
 		self::$_instance = new HtmlTag($tag);
 		return self::$_instance;
 	}
-	
+
 	public function addElement($tag){
 		$htmlTag = null;
 		$this->autoclosed = in_array($this->tag,$this->autocloseTagsList);
@@ -49,17 +49,17 @@ class HtmlTag{
 		$htmlTag->_parent = &$this;
 		return $htmlTag;
 	}
-	
+
 	public function set($name,$value){
 		if(is_null($this->attributeList)) $this->attributeList = array();
 		$this->attributeList[$name] = $value;
 		return $this;
 	}
-	
+
 	public function id($value){
 		return $this->set('id',$value);
 	}
-	
+
 	public function addClass($value){
 		if(is_null($this->classList))
 			$this->classList = array();
@@ -73,8 +73,8 @@ class HtmlTag{
 		}
 		return $this;
 	}
-	
-	public function setText($value){
+
+	public function text($value){
 		$find = false;
 		foreach($this->content as $k=>$v){
 			if($this->content[$k]->tag == ''){
@@ -85,11 +85,11 @@ class HtmlTag{
 		if(!$find) $this->addElement('')->text = $value;
 		return $this;
 	}
-	
+
 	public function showTextBeforeContent($bool){
 		$this->textFirst = $bool;
 	}
-	
+
 	/*
 	*	DOM manipulation
 	*/
@@ -129,7 +129,7 @@ class HtmlTag{
 					break;
 				}
 				if( $c == $this ) $find = true;
-				
+
 			}
 		}
 		return $next;
@@ -147,19 +147,19 @@ class HtmlTag{
 					unset($parent->content[$key]);
 					return $parent;
 				}
-				
+
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	*	methods of generation
 	**/
 	public function __toString(){
 		return (is_null($this->_top) ? $this->toString() : $this->_top->toString() );
 	}
-	
+
 	public function toString(){
 		$string = '';
 		if(!empty($this->tag)){
@@ -174,12 +174,12 @@ class HtmlTag{
 		}		
 		return $string;
 	}
-	
+
 	private function attributesToString(){
 		$string = '';
 		if(!is_null($this->attributeList)){
 			foreach($this->attributeList as $key => $value){
-				if(!empty($value))
+				if(!is_null($value))
 					$string .= ' ' . $key . '="' . $value . '"';
 			}
 		}
@@ -188,7 +188,7 @@ class HtmlTag{
 		}
 		return $string;
 	}
-	
+
 	private function contentToString(){
 		$string = '';
 		if(!is_null($this->content)){
